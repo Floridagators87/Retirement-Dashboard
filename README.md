@@ -1,9 +1,12 @@
 # Retirement HQ
 
-A private-on-device retirement and net-worth dashboard designed for GitHub Pages.
+Mobile-first retirement dashboard for GitHub Pages.
 
-## Updating balances
-Tap **Update balances**, enter the seven current account values, and tap **Save all balances**. Values and timestamps are stored only in that browser's local storage; they are not written to the public repository.
+## Privacy
+The repository contains only static code and starting defaults. Changes made through the dashboard—including balances and monthly snapshots—are stored in that browser's local storage and are not sent to GitHub.
 
-## Publishing
-Upload all files to the root of the GitHub repository and enable GitHub Pages from the `main` branch and `/ (root)` folder.
+## Update the site
+Upload all files to the repository root and commit to the `main` branch. GitHub Pages will redeploy automatically.
+
+## Important
+The retirement success percentage is an on-device Monte Carlo planning estimate based on editable assumptions. It is not a guarantee or financial advice.

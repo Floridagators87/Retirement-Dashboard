@@ -1,112 +1,40 @@
-const STORAGE_KEY = 'retirementHQ.v3';
-const OLD_STORAGE_KEYS = ['retirementHQ.v2'];
-const DAY = 86400000;
-const YEAR_DAYS = 365.2425;
-
-const accountDefinitions = [
-  ['account175','175 Account','Deferred compensation'],
-  ['kristaRoth','Krista Roth','Roth IRA'],
-  ['stevenRoth','Steven Roth','Roth IRA'],
-  ['baptist403b','Baptist 403(b)','Employer retirement'],
-  ['city457b','City of Miami 457(b)','Deferred compensation'],
-  ['robinhoodRoth','Robinhood Roth','Roth IRA'],
-  ['robinhoodTaxable','Robinhood Taxable','Brokerage account']
-];
-
-const defaults = {
-  careerStart: '2007-10-29', retirementDate: '2031-09-23', pensionSalary: 168017,
-  currentSalaryStart: '2025-10-29', priorSalary: 163992, priorSalaryStart: '2024-10-29',
-  dropYears: 5, dropReturn: 5, homeValue: 700000, mortgage: 277902, otherAssets: 0, otherDebt: 0,
-  account175: 170411, kristaRoth: 31000, stevenRoth: 48450, baptist403b: 10450,
-  city457b: 255000, robinhoodRoth: 10200, robinhoodTaxable: 13500,
-  balancesUpdatedAt: new Date().toISOString()
-};
-
-const settingIds = ['careerStart','retirementDate','pensionSalary','currentSalaryStart','priorSalary','priorSalaryStart','dropYears','dropReturn','homeValue','mortgage','otherAssets','otherDebt'];
-const money = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0);
-const preciseMoney = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0);
-const dateAtLocalMidnight = value => new Date(value + 'T00:00:00');
-const serviceYearsAt = (start, at) => Math.max(0,(at-start)/DAY/YEAR_DAYS);
-const multiplierAt = years => Math.min(years,15)*0.03 + Math.max(0,years-15)*0.035;
-const pensionAt = (salary,years) => Number(salary)*multiplierAt(years);
-
-function load(){
-  let stored = localStorage.getItem(STORAGE_KEY);
-  if(!stored){
-    for(const key of OLD_STORAGE_KEYS){ if(localStorage.getItem(key)){ stored=localStorage.getItem(key); break; } }
-  }
-  const parsed = stored ? JSON.parse(stored) : {};
-  return {...defaults,...parsed};
+const STORAGE_KEY='retirementHQ.v4';
+const OLD_STORAGE_KEYS=['retirementHQ.v3','retirementHQ.v2'];
+const DAY=86400000, YEAR_DAYS=365.2425;
+const accountDefinitions=[['account175','175 Account','Deferred compensation'],['kristaRoth','Krista Roth','Roth IRA'],['stevenRoth','Steven Roth','Roth IRA'],['baptist403b','Baptist 403(b)','Employer retirement'],['city457b','City of Miami 457(b)','Deferred compensation'],['robinhoodRoth','Robinhood Roth','Roth IRA'],['robinhoodTaxable','Robinhood Taxable','Brokerage account']];
+const defaults={careerStart:'2007-10-29',retirementDate:'2031-09-23',pensionSalary:168017,currentSalaryStart:'2025-10-29',priorSalary:157000,priorSalaryStart:'2024-10-29',annualBudget:100000,investmentGoal:1000000,inflationRate:2.5,expectedReturn:5.5,volatility:12,pensionCola:0,retirementHorizon:40,annualContributions:12000,dropYears:5,dropReturn:5,homeValue:700000,mortgage:277902,mortgageOriginalInput:323000,mortgageInterest:2.75,mortgageStart:'2020-06',mortgageTerm:30,mortgagePI:1398,otherAssets:0,otherDebt:0,account175:170411,kristaRoth:31000,stevenRoth:48450,baptist403b:10450,city457b:255000,robinhoodRoth:10200,robinhoodTaxable:13500,balancesUpdatedAt:new Date().toISOString(),snapshots:[]};
+const settingIds=['careerStart','retirementDate','pensionSalary','currentSalaryStart','priorSalary','priorSalaryStart','annualBudget','investmentGoal','inflationRate','expectedReturn','volatility','pensionCola','retirementHorizon','annualContributions','dropYears','dropReturn','homeValue','mortgage','mortgageOriginalInput','mortgageInterest','mortgageStart','mortgageTerm','mortgagePI','otherAssets','otherDebt'];
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0);
+const preciseMoney=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0);
+const clamp=(n,min=0,max=100)=>Math.min(max,Math.max(min,n));
+const localDate=v=>new Date(v+(v.length===7?'-01':'')+'T00:00:00');
+const serviceYearsAt=(start,at)=>Math.max(0,(at-start)/DAY/YEAR_DAYS);
+const multiplierAt=years=>Math.min(years,15)*.03+Math.max(0,years-15)*.035;
+const pensionAt=(salary,years)=>Number(salary)*multiplierAt(years);
+function load(){let raw=localStorage.getItem(STORAGE_KEY);if(!raw)for(const k of OLD_STORAGE_KEYS){if(localStorage.getItem(k)){raw=localStorage.getItem(k);break}}let parsed={};try{parsed=raw?JSON.parse(raw):{}}catch{}return {...defaults,...parsed,snapshots:Array.isArray(parsed.snapshots)?parsed.snapshots:[]}}
+function save(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d))}
+function investmentTotal(d){return accountDefinitions.reduce((s,[id])=>s+Number(d[id]||0),0)}
+function netValues(d){const investments=investmentTotal(d),equity=Number(d.homeValue)-Number(d.mortgage),net=investments+equity+Number(d.otherAssets)-Number(d.otherDebt);return{investments,equity,net}}
+function formatUpdated(iso){if(!iso)return'Not yet';const dt=new Date(iso),same=dt.toDateString()===new Date().toDateString();return same?dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+function calendarCountdown(from,to){if(from>=to)return'Eligible now';let y=to.getFullYear()-from.getFullYear(),c=new Date(from);c.setFullYear(c.getFullYear()+y);if(c>to){y--;c=new Date(from);c.setFullYear(c.getFullYear()+y)}let m=0;while(true){const n=new Date(c);n.setMonth(n.getMonth()+1);if(n<=to){c=n;m++}else break}const days=Math.floor((to-c)/DAY);return`${y}y ${m}m ${days}d`}
+function normalRandom(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function projectPortfolioAtRetirement(d,years){const r=Number(d.expectedReturn)/100;let p=investmentTotal(d);for(let i=0;i<years;i++)p=p*(1+r)+Number(d.annualContributions||0);return p}
+function monteCarlo(d,targetPension,yearsToRetire,runs=900){const years=Math.max(0,yearsToRetire),horizon=Math.max(10,Number(d.retirementHorizon)),mean=Number(d.expectedReturn)/100,vol=Number(d.volatility)/100,infl=Number(d.inflationRate)/100,cola=Number(d.pensionCola)/100,contrib=Number(d.annualContributions||0);let success=0;for(let run=0;run<runs;run++){let portfolio=investmentTotal(d);for(let y=0;y<Math.ceil(years);y++){portfolio=Math.max(0,portfolio*(1+mean+vol*normalRandom())+contrib)}let spend=Number(d.annualBudget),pension=targetPension,ok=true;for(let y=0;y<horizon;y++){const gap=Math.max(0,spend-pension);portfolio-=gap;if(portfolio<0){ok=false;break}portfolio=Math.max(0,portfolio*(1+mean+vol*normalRandom()));spend*=1+infl;pension*=1+cola}if(ok)success++}return Math.round(success/runs*100)}
+function readiness(d,now,start,target,currentPension,targetPension){const {investments}=netValues(d);const totalDays=Math.max(1,(target-start)/DAY),time=clamp(((Math.min(now,target)-start)/DAY)/totalDays*100);const pension=clamp(currentPension/Math.max(1,targetPension)*100);const investing=clamp(investments/Math.max(1,Number(d.investmentGoal))*100);const coverage=clamp(targetPension/Math.max(1,Number(d.annualBudget))*100);const debt=clamp((1-Number(d.mortgage)/Math.max(1,Number(d.mortgageOriginalInput)))*100);const liquid=Number(d.account175)+Number(d.robinhoodTaxable);const buffer=clamp(liquid/(Number(d.annualBudget)*1.5)*100);const rows=[['Time readiness',time,25,'Toward eligibility'],['Pension progress',pension,25,'Current vs. eligibility pension'],['Investment progress',investing,20,'Toward investment goal'],['Spending coverage',coverage,15,'Pension vs. annual budget'],['Debt reduction',debt,10,'Original mortgage paid'],['Bridge buffer',buffer,5,'175 + taxable vs. 18 months']];return{score:rows.reduce((s,r)=>s+r[1]*r[2]/100,0),rows}}
+function setRing(el,score,color){el.style.setProperty('--score',clamp(score));el.style.setProperty('--ring-color',color)}
+function saveSnapshot(d,force=false){const vals=netValues(d),month=new Date().toISOString().slice(0,7),snap={date:new Date().toISOString(),month,...vals,mortgage:Number(d.mortgage),homeValue:Number(d.homeValue),fire:null};const idx=d.snapshots.findIndex(s=>s.month===month);if(idx>=0)d.snapshots[idx]=snap;else d.snapshots.push(snap);d.snapshots=d.snapshots.slice(-60);if(force)save(d)}
+function drawChart(snaps){const canvas=document.getElementById('historyChart'),ctx=canvas.getContext('2d'),ratio=window.devicePixelRatio||1,w=canvas.clientWidth||700,h=190;canvas.width=w*ratio;canvas.height=h*ratio;ctx.scale(ratio,ratio);ctx.clearRect(0,0,w,h);if(!snaps.length){ctx.fillStyle='#96a6bb';ctx.font='13px sans-serif';ctx.fillText('Save your first monthly snapshot to begin the chart.',16,36);return}const data=snaps.slice(-18),vals=data.map(s=>s.net),min=Math.min(...vals)*.98,max=Math.max(...vals)*1.02||1,pad=22;ctx.strokeStyle='#26374c';ctx.lineWidth=1;for(let i=0;i<4;i++){const y=pad+(h-pad*2)*i/3;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(w-pad,y);ctx.stroke()}ctx.strokeStyle='#56d39b';ctx.lineWidth=3;ctx.beginPath();data.forEach((s,i)=>{const x=pad+(w-pad*2)*(data.length===1?.5:i/(data.length-1)),y=h-pad-(s.net-min)/(max-min||1)*(h-pad*2);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle='#96a6bb';ctx.font='11px sans-serif';ctx.fillText(money(min),pad,h-5);ctx.textAlign='right';ctx.fillText(money(max),w-pad,14);ctx.textAlign='left'}
+function render(){const d=load(),now=new Date(),start=localDate(d.careerStart),target=localDate(d.retirementDate),service=serviceYearsAt(start,now),targetYears=serviceYearsAt(start,target),currentPension=pensionAt(d.pensionSalary,service),targetPension=pensionAt(d.pensionSalary,targetYears),annualAccrual=Number(d.pensionSalary)*(service<15?.03:.035),daily=annualAccrual/YEAR_DAYS,totalDays=Math.max(1,(target-start)/DAY),served=Math.max(0,(Math.min(now,target)-start)/DAY),careerPct=clamp(served/totalDays*100),yearsTo=Math.max(0,(target-now)/DAY/YEAR_DAYS),vals=netValues(d),ready=readiness(d,now,start,target,currentPension,targetPension),success=monteCarlo(d,targetPension,yearsTo);
+ todayLabel.textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});countdown.textContent=calendarCountdown(now,target);targetDateLabel.textContent=`Eligibility: ${target.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;progressBar.style.width=careerPct+'%';careerProgress.textContent=careerPct.toFixed(1)+'%';pensionToday.textContent=preciseMoney(currentPension);dailyAccrual.textContent='+'+preciseMoney(daily)+'/day';monthlyAccrual.textContent=`About ${money(daily*30.44)} per average month`;salaryBasis.textContent=`Annual benefit estimate using ${money(d.pensionSalary)} highest-year salary`;pensionAtTarget.textContent=money(targetPension);spendingCoverage.textContent=`Covers ${(targetPension/Number(d.annualBudget)*100).toFixed(0)}% of your ${money(d.annualBudget)} annual budget before taxes`;serviceYears.textContent=service.toFixed(6);serviceDetail.textContent=`Hired ${start.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+ fireScore.textContent=Math.round(ready.score)+'%';setRing(fireRing,ready.score,'#56d39b');fireStatus.textContent=ready.score>=90?'Retirement-ready':ready.score>=75?'Strong progress':ready.score>=55?'Building momentum':'Foundation stage';fireChange.textContent=`Formula-based score across six readiness factors.`;successScore.textContent=success+'%';setRing(successRing,success,success>=80?'#66a9ff':success>=60?'#f5c66d':'#ff7d7d');successStatus.textContent=success>=90?'High modeled resilience':success>=75?'Good modeled resilience':success>=50?'Moderate modeled resilience':'Needs attention';
+ netWorth.textContent=money(vals.net);investmentTotal.textContent=money(vals.investments);homeEquity.textContent=money(vals.equity);lastUpdated.textContent=formatUpdated(d.balancesUpdatedAt);accountList.innerHTML=accountDefinitions.map(([id,name,sub])=>`<div class="account-row"><div><strong>${name}</strong><small>${sub}</small></div><strong>${money(d[id])}</strong></div>`).join('')+`<div class="account-row total-row"><div><strong>Investment total</strong><small>All seven accounts</small></div><strong>${money(vals.investments)}</strong></div><div class="account-row"><div><strong>Home equity</strong><small>${money(d.homeValue)} value − ${money(d.mortgage)} mortgage</small></div><strong>${money(vals.equity)}</strong></div>`;
+ annualBudgetLabel.textContent=money(d.annualBudget)+'/yr';readinessBreakdown.innerHTML=ready.rows.map(([name,score,weight,sub])=>`<div class="breakdown-row"><div class="breakdown-label"><strong>${name}</strong><small>${weight}% weight · ${sub}</small></div><div class="mini-track"><div class="mini-fill" style="width:${clamp(score)}%"></div></div><strong>${Math.round(score)}%</strong></div>`).join('');
+ missionList.innerHTML=`<div class="mission-item"><b>✓</b><div><strong>Pension is growing live</strong><p class="muted">Approximately ${preciseMoney(daily)} of additional annual benefit earned today.</p></div></div><div class="mission-item"><b>✓</b><div><strong>Eligibility is one day closer</strong><p class="muted">${calendarCountdown(now,target)} remain.</p></div></div><div class="mission-item"><b>✓</b><div><strong>Projected eligibility pension</strong><p class="muted">${money(targetPension)} annually against a ${money(d.annualBudget)} budget.</p></div></div>`;
+ const paid=Number(d.mortgageOriginalInput)-Number(d.mortgage),mortPct=clamp(paid/Math.max(1,Number(d.mortgageOriginalInput))*100),payoff=localDate(d.mortgageStart);payoff.setFullYear(payoff.getFullYear()+Number(d.mortgageTerm));mortgageBalance.textContent=money(d.mortgage);mortgageRate.textContent=`${Number(d.mortgageInterest).toFixed(2)}% fixed`;mortgageOriginal.textContent=money(d.mortgageOriginalInput);principalPaid.textContent=money(paid);mortgagePayment.textContent=money(d.mortgagePI);mortgagePayoff.textContent=payoff.toLocaleDateString('en-US',{month:'short',year:'numeric'});mortgageProgress.style.width=mortPct+'%';
+ const extra=Number(d.pensionSalary)*.035;oneYearPension.textContent='+'+money(extra)+'/yr';fiveYearPension.textContent='+'+money(extra*5);const r=Number(d.dropReturn)/100,n=Number(d.dropYears),drop=r===0?targetPension*n:targetPension*((Math.pow(1+r,n)-1)/r);dropValue.textContent=money(drop);
+ drawChart(d.snapshots);snapshotList.innerHTML=d.snapshots.slice(-4).reverse().map(s=>`<div class="snapshot-row"><span>${new Date(s.date).toLocaleDateString('en-US',{month:'short',year:'numeric'})}</span><strong>${money(s.net)}</strong></div>`).join('')||'<p class="muted">No snapshots saved yet.</p>';
 }
-function save(data){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
-function investmentTotal(d){ return accountDefinitions.reduce((sum,[id])=>sum+Number(d[id]||0),0); }
-function formatUpdated(iso){
-  if(!iso) return 'Not yet';
-  const dt=new Date(iso), now=new Date(), sameDay=dt.toDateString()===now.toDateString();
-  return sameDay ? dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-}
-function calendarCountdown(from,to){
-  if(from>=to) return 'Eligible now';
-  let years=to.getFullYear()-from.getFullYear(), cursor=new Date(from); cursor.setFullYear(cursor.getFullYear()+years);
-  if(cursor>to){years--;cursor=new Date(from);cursor.setFullYear(cursor.getFullYear()+years);}
-  let months=0; while(true){const next=new Date(cursor);next.setMonth(next.getMonth()+1);if(next<=to){cursor=next;months++;}else break;}
-  const days=Math.floor((to-cursor)/DAY); return `${years}y ${months}m ${days}d`;
-}
-
-function render(){
-  const d=load(),now=new Date(),start=dateAtLocalMidnight(d.careerStart),target=dateAtLocalMidnight(d.retirementDate);
-  const serviceYears=serviceYearsAt(start,now),targetYears=serviceYearsAt(start,target);
-  const currentPension=pensionAt(d.pensionSalary,serviceYears),targetPension=pensionAt(d.pensionSalary,targetYears);
-  const annualAccrual=Number(d.pensionSalary)*(serviceYears<15?0.03:0.035),dailyAccrual=annualAccrual/YEAR_DAYS;
-  const totalCareerDays=Math.max(1,(target-start)/DAY),servedDays=Math.max(0,(Math.min(now,target)-start)/DAY),pct=Math.min(100,Math.max(0,servedDays/totalCareerDays*100));
-
-  todayLabel.textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  countdown.textContent=calendarCountdown(now,target);
-  targetDateLabel.textContent=`Eligibility: ${target.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
-  progressBar.style.width=pct+'%'; careerProgress.textContent=pct.toFixed(1)+'%';
-  pensionToday.textContent=preciseMoney(currentPension);
-  dailyAccrual.textContent='+'+preciseMoney(dailyAccrual)+'/day';
-  monthlyAccrual.textContent=`About ${money(dailyAccrual*30.44)} per month at the current salary basis`;
-  pensionAtTarget.textContent=money(targetPension); targetIncrease.textContent=`${money(targetPension-currentPension)} above today`;
-  serviceYears.textContent=serviceYears.toFixed(6);
-  serviceDetail.textContent=`Hired ${start.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})} · ${(serviceYears*YEAR_DAYS).toLocaleString(undefined,{maximumFractionDigits:1})} service days`;
-  salaryBasis.textContent=`Based on highest year salary of ${money(d.pensionSalary)}`;
-
-  const invested=investmentTotal(d),equity=Number(d.homeValue)-Number(d.mortgage),net=invested+equity+Number(d.otherAssets)-Number(d.otherDebt);
-  netWorth.textContent=money(net); investmentTotalEl.textContent=money(invested); homeEquity.textContent=money(equity); lastUpdated.textContent=formatUpdated(d.balancesUpdatedAt);
-  accountList.innerHTML=accountDefinitions.map(([id,name,subtitle])=>`<div class="account-row"><div><strong>${name}</strong><small>${subtitle}</small></div><strong>${money(d[id])}</strong></div>`).join('')+
-    `<div class="account-row total-row"><div><strong>Investment total</strong><small>All seven accounts</small></div><strong>${money(invested)}</strong></div>`+
-    `<div class="account-row"><div><strong>Home equity</strong><small>${money(d.homeValue)} value − ${money(d.mortgage)} mortgage</small></div><strong>${money(equity)}</strong></div>`;
-
-  const oneYear=Number(d.pensionSalary)*0.035; oneYearPension.textContent='+'+money(oneYear)+'/yr'; fiveYearPension.textContent='+'+money(oneYear*5);
-  const r=Number(d.dropReturn)/100,n=Number(d.dropYears),annual=targetPension,drop=r===0?annual*n:annual*((Math.pow(1+r,n)-1)/r); dropValue.textContent=money(drop);
-}
-
-function liveTick(){
-  const d=load(),now=new Date(),start=dateAtLocalMidnight(d.careerStart);
-  pensionToday.textContent=preciseMoney(pensionAt(d.pensionSalary,serviceYearsAt(start,now)));
-  serviceYears.textContent=serviceYearsAt(start,now).toFixed(8);
-}
-
-function buildBalanceFields(){
-  const d=load();
-  balanceFields.innerHTML=accountDefinitions.map(([id,name,subtitle])=>`<label class="balance-field"><span><strong>${name}</strong><small>${subtitle}</small></span><div class="money-input"><span>$</span><input id="${id}" inputmode="decimal" type="number" min="0" step="1" value="${Number(d[id]||0)}"></div></label>`).join('');
-}
-function populateSettings(){const d=load();settingIds.forEach(id=>{const el=document.getElementById(id);if(el)el.value=d[id];});}
-
-settingsBtn.addEventListener('click',()=>{populateSettings();settingsDialog.showModal();});
-refreshBtn.addEventListener('click',()=>{buildBalanceFields();balancesDialog.showModal();});
-cancelBalances.addEventListener('click',()=>balancesDialog.close());
-balancesForm.addEventListener('submit',e=>{
-  e.preventDefault(); const d=load();
-  accountDefinitions.forEach(([id])=>{d[id]=Number(document.getElementById(id).value||0);});
-  d.balancesUpdatedAt=new Date().toISOString(); save(d); balancesDialog.close(); render();
-});
-settingsForm.addEventListener('submit',e=>{
-  e.preventDefault(); const d=load(); settingIds.forEach(id=>{const el=document.getElementById(id);d[id]=el.type==='date'?el.value:Number(el.value||0);});
-  save(d); settingsDialog.close(); render();
-});
-resetBtn.addEventListener('click',()=>{localStorage.removeItem(STORAGE_KEY);save(defaults);populateSettings();render();});
-
-const investmentTotalEl=document.getElementById('investmentTotal');
-render(); setInterval(liveTick,1000); setInterval(render,60000);
+function liveTick(){const d=load(),now=new Date(),start=localDate(d.careerStart);pensionToday.textContent=preciseMoney(pensionAt(d.pensionSalary,serviceYearsAt(start,now)));serviceYears.textContent=serviceYearsAt(start,now).toFixed(8)}
+function buildBalanceFields(){const d=load();balanceFields.innerHTML=accountDefinitions.map(([id,name,sub])=>`<label class="balance-field"><span><strong>${name}</strong><small>${sub}</small></span><div class="money-input"><span>$</span><input id="${id}" inputmode="decimal" type="number" min="0" step="1" value="${Number(d[id]||0)}"></div></label>`).join('');quickHomeValue.value=d.homeValue;quickMortgage.value=d.mortgage}
+function populateSettings(){const d=load();settingIds.forEach(id=>{const el=document.getElementById(id);if(el)el.value=d[id]})}
+settingsBtn.onclick=()=>{populateSettings();settingsDialog.showModal()};refreshBtn.onclick=()=>{buildBalanceFields();balancesDialog.showModal()};cancelBalances.onclick=()=>balancesDialog.close();snapshotBtn.onclick=()=>{const d=load();saveSnapshot(d,true);render()};balancesForm.onsubmit=e=>{e.preventDefault();const d=load();accountDefinitions.forEach(([id])=>d[id]=Number(document.getElementById(id).value||0));d.homeValue=Number(quickHomeValue.value||0);d.mortgage=Number(quickMortgage.value||0);d.balancesUpdatedAt=new Date().toISOString();saveSnapshot(d);save(d);balancesDialog.close();render()};settingsForm.onsubmit=e=>{e.preventDefault();const d=load();settingIds.forEach(id=>{const el=document.getElementById(id);d[id]=(el.type==='date'||el.type==='month')?el.value:Number(el.value||0)});save(d);settingsDialog.close();render()};resetBtn.onclick=()=>{localStorage.removeItem(STORAGE_KEY);save(defaults);populateSettings();render()};window.addEventListener('resize',()=>drawChart(load().snapshots));render();setInterval(liveTick,1000);setInterval(render,300000);

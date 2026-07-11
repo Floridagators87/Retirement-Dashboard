@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="theme-color" content="#08111f" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Retirement HQ" />
@@ -15,9 +15,20 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><p class="eyebrow">PERSONAL FINANCE</p><h1>Retirement HQ</h1><p id="todayLabel" class="muted"></p></div>
+      <div><p class="eyebrow">MISSION CONTROL</p><h1>Retirement HQ</h1><p id="todayLabel" class="muted"></p></div>
       <button id="settingsBtn" class="icon-btn" aria-label="Open settings">⚙︎</button>
     </header>
+
+    <section class="score-grid">
+      <article class="card score-card">
+        <div class="ring" id="fireRing"><div><strong id="fireScore">—</strong><span>FIRE ready</span></div></div>
+        <div class="score-copy"><p class="label">FIRE READINESS</p><h2 id="fireStatus">Calculating…</h2><p id="fireChange" class="muted">Progress score toward your planned retirement.</p></div>
+      </article>
+      <article class="card score-card">
+        <div class="ring" id="successRing"><div><strong id="successScore">—</strong><span>success</span></div></div>
+        <div class="score-copy"><p class="label">RETIREMENT SUCCESS</p><h2 id="successStatus">Planning estimate</h2><p class="muted">Monte Carlo estimate—not a guarantee.</p></div>
+      </article>
+    </section>
 
     <section class="hero card">
       <div><p class="label">RETIREMENT COUNTDOWN</p><div id="countdown" class="countdown">—</div><p id="targetDateLabel" class="muted"></p></div>
@@ -25,8 +36,13 @@
     </section>
 
     <section class="grid two">
-      <article class="card metric-card"><p class="label">PENSION TODAY</p><div id="pensionToday" class="metric">—</div><p id="salaryBasis" class="muted">Estimated annual benefit</p></article>
-      <article class="card metric-card"><p class="label">TODAY'S ACCRUAL</p><div id="dailyAccrual" class="metric positive">—</div><p id="monthlyAccrual" class="muted"></p></article>
+      <article class="card metric-card live-card"><p class="label">PENSION TODAY</p><div id="pensionToday" class="metric">—</div><p id="salaryBasis" class="muted"></p><span class="live-pill">● LIVE</span></article>
+      <article class="card metric-card"><p class="label">TODAY'S PENSION ACCRUAL</p><div id="dailyAccrual" class="metric positive">—</div><p id="monthlyAccrual" class="muted"></p></article>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="label">TODAY'S PROGRESS</p><h2>One day closer</h2></div></div>
+      <div id="missionList" class="mission-list"></div>
     </section>
 
     <section class="card">
@@ -42,50 +58,95 @@
       <div id="accountList" class="account-list"></div>
     </section>
 
+    <section class="card">
+      <div class="section-head"><div><p class="label">FIRE BREAKDOWN</p><h2>What drives the score</h2></div><strong id="annualBudgetLabel"></strong></div>
+      <div id="readinessBreakdown" class="breakdown"></div>
+    </section>
+
     <section class="grid two">
+      <article class="card metric-card"><p class="label">PENSION AT ELIGIBILITY</p><div id="pensionAtTarget" class="metric">—</div><p id="spendingCoverage" class="muted"></p></article>
       <article class="card metric-card"><p class="label">YEARS OF SERVICE</p><div id="serviceYears" class="metric">—</div><p id="serviceDetail" class="muted"></p></article>
-      <article class="card metric-card"><p class="label">PENSION AT TARGET</p><div id="pensionAtTarget" class="metric">—</div><p id="targetIncrease" class="muted"></p></article>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="label">MORTGAGE</p><h2 id="mortgageBalance">—</h2></div><span id="mortgageRate" class="badge"></span></div>
+      <div class="summary-strip four">
+        <div><small>Original</small><strong id="mortgageOriginal">—</strong></div>
+        <div><small>Principal paid</small><strong id="principalPaid">—</strong></div>
+        <div><small>P&amp;I payment</small><strong id="mortgagePayment">—</strong></div>
+        <div><small>Est. payoff</small><strong id="mortgagePayoff">—</strong></div>
+      </div>
+      <div class="progress-track"><div id="mortgageProgress" class="progress-bar alt"></div></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="label">MONTHLY HISTORY</p><h2>Net-worth trend</h2></div><button id="snapshotBtn" class="secondary compact">Save snapshot</button></div>
+      <canvas id="historyChart" height="190" aria-label="Net worth history chart"></canvas>
+      <div id="snapshotList" class="snapshot-list"></div>
     </section>
 
     <section class="card">
       <div class="section-head"><div><p class="label">QUICK SCENARIOS</p><h2>What one more year does</h2></div></div>
       <div class="scenario-row"><span>Additional annual pension</span><strong id="oneYearPension">—</strong></div>
-      <div class="scenario-row"><span>Additional 5-year pension income</span><strong id="fiveYearPension">—</strong></div>
+      <div class="scenario-row"><span>Five years of added pension payments</span><strong id="fiveYearPension">—</strong></div>
       <div class="scenario-row"><span>Projected DROP value</span><strong id="dropValue">—</strong></div>
     </section>
 
-    <p class="privacy-note">Balances and update times are stored only on this device. No bank credentials or private balances are uploaded to GitHub.</p>
+    <p class="privacy-note">Your balances, assumptions, and history stay in this browser's local storage. GitHub receives only the dashboard code—not your updates or credentials.</p>
   </main>
 
   <dialog id="balancesDialog">
     <form id="balancesForm" method="dialog">
-      <div class="dialog-head"><div><p class="eyebrow">QUICK REFRESH</p><h2>Update balances</h2><p class="muted">Enter the current value from each account, then save once.</p></div><button class="icon-btn" value="cancel" aria-label="Close">✕</button></div>
+      <div class="dialog-head"><div><p class="eyebrow">MONTHLY REVIEW</p><h2>Refresh your numbers</h2><p class="muted">Update the accounts, mortgage, and home value. Saving also creates a monthly snapshot.</p></div><button class="icon-btn" value="cancel" aria-label="Close">✕</button></div>
       <div id="balanceFields" class="balance-fields"></div>
-      <div class="dialog-actions"><button type="button" id="cancelBalances" class="secondary">Cancel</button><button type="submit" class="primary">Save all balances</button></div>
+      <div class="form-grid small-grid">
+        <label>Home market value ($)<input id="quickHomeValue" inputmode="decimal" type="number" min="0" step="1000"></label>
+        <label>Mortgage balance ($)<input id="quickMortgage" inputmode="decimal" type="number" min="0" step="1"></label>
+      </div>
+      <div class="dialog-actions"><button type="button" id="cancelBalances" class="secondary">Cancel</button><button type="submit" class="primary">Save review</button></div>
     </form>
   </dialog>
 
   <dialog id="settingsDialog">
     <form id="settingsForm" method="dialog">
-      <div class="dialog-head"><div><p class="eyebrow">EDIT DASHBOARD</p><h2>Settings</h2></div><button class="icon-btn" value="cancel" aria-label="Close">✕</button></div>
+      <div class="dialog-head"><div><p class="eyebrow">EDIT DASHBOARD</p><h2>Planning assumptions</h2></div><button class="icon-btn" value="cancel" aria-label="Close">✕</button></div>
+      <h3>Pension</h3>
       <div class="form-grid">
-        <label>Career start date<input id="careerStart" type="date" required></label>
-        <label>Target retirement date<input id="retirementDate" type="date" required></label>
-        <label>Highest-year pension salary ($)<input id="pensionSalary" type="number" min="0" step="1"></label>
-        <label>Current salary effective date<input id="currentSalaryStart" type="date"></label>
+        <label>Hire date<input id="careerStart" type="date" required></label>
+        <label>Eligibility date<input id="retirementDate" type="date" required></label>
+        <label>Highest-year salary ($)<input id="pensionSalary" type="number" min="0" step="1"></label>
+        <label>Current salary effective<input id="currentSalaryStart" type="date"></label>
         <label>Prior pension salary ($)<input id="priorSalary" type="number" min="0" step="1"></label>
-        <label>Prior salary effective date<input id="priorSalaryStart" type="date"></label>
-        <label>DROP years<input id="dropYears" type="number" min="0" max="10" step="0.5"></label>
-        <label>DROP return assumption (%)<input id="dropReturn" type="number" min="0" max="20" step="0.1"></label>
+        <label>Prior salary effective<input id="priorSalaryStart" type="date"></label>
+      </div>
+      <h3>FIRE &amp; probability</h3>
+      <div class="form-grid">
+        <label>Annual retirement budget ($)<input id="annualBudget" type="number" min="0" step="1000"></label>
+        <label>Investment goal ($)<input id="investmentGoal" type="number" min="0" step="10000"></label>
+        <label>Inflation assumption (%)<input id="inflationRate" type="number" min="0" max="15" step="0.1"></label>
+        <label>Average investment return (%)<input id="expectedReturn" type="number" min="-5" max="20" step="0.1"></label>
+        <label>Annual volatility (%)<input id="volatility" type="number" min="0" max="40" step="0.5"></label>
+        <label>Pension COLA assumption (%)<input id="pensionCola" type="number" min="0" max="10" step="0.1"></label>
+        <label>Retirement horizon (years)<input id="retirementHorizon" type="number" min="10" max="60" step="1"></label>
+        <label>Annual contributions until retirement ($)<input id="annualContributions" type="number" min="0" step="1000"></label>
+      </div>
+      <h3>Mortgage &amp; DROP</h3>
+      <div class="form-grid">
+        <label>Original mortgage ($)<input id="mortgageOriginalInput" type="number" min="0" step="1"></label>
+        <label>Current mortgage ($)<input id="mortgage" type="number" min="0" step="1"></label>
+        <label>Interest rate (%)<input id="mortgageInterest" type="number" min="0" max="20" step="0.01"></label>
+        <label>Opened<input id="mortgageStart" type="month"></label>
+        <label>Loan term (years)<input id="mortgageTerm" type="number" min="1" max="50" step="1"></label>
+        <label>Monthly principal &amp; interest ($)<input id="mortgagePI" type="number" min="0" step="1"></label>
         <label>Home value ($)<input id="homeValue" type="number" min="0" step="1000"></label>
-        <label>Mortgage balance ($)<input id="mortgage" type="number" min="0" step="100"></label>
+        <label>DROP years<input id="dropYears" type="number" min="0" max="10" step="0.5"></label>
+        <label>DROP return (%)<input id="dropReturn" type="number" min="0" max="20" step="0.1"></label>
         <label>Other assets ($)<input id="otherAssets" type="number" min="0" step="100"></label>
         <label>Other debt ($)<input id="otherDebt" type="number" min="0" step="100"></label>
       </div>
       <div class="dialog-actions"><button type="button" id="resetBtn" class="secondary">Reset defaults</button><button type="submit" class="primary">Save settings</button></div>
     </form>
   </dialog>
-
   <script src="app.js"></script>
 </body>
 </html>
