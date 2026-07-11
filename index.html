@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Retirement HQ" />
+  <title>Retirement HQ</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PERSONAL FINANCE</p>
+        <h1>Retirement HQ</h1>
+        <p id="todayLabel" class="muted"></p>
+      </div>
+      <button id="settingsBtn" class="icon-btn" aria-label="Open settings">⚙︎</button>
+    </header>
+
+    <section class="hero card">
+      <div>
+        <p class="label">RETIREMENT COUNTDOWN</p>
+        <div id="countdown" class="countdown">—</div>
+        <p id="targetDateLabel" class="muted"></p>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        <div class="progress-row"><span>Career progress</span><strong id="careerProgress">—</strong></div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <article class="card metric-card">
+        <p class="label">PENSION TODAY</p>
+        <div id="pensionToday" class="metric">—</div>
+        <p class="muted">Estimated annual benefit</p>
+      </article>
+      <article class="card metric-card">
+        <p class="label">TODAY'S ACCRUAL</p>
+        <div id="dailyAccrual" class="metric positive">—</div>
+        <p id="monthlyAccrual" class="muted"></p>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div><p class="label">NET WORTH</p><div id="netWorth" class="metric">—</div></div>
+        <span id="lastUpdated" class="pill">Local only</span>
+      </div>
+      <div id="accountList" class="account-list"></div>
+    </section>
+
+    <section class="grid two">
+      <article class="card metric-card">
+        <p class="label">YEARS OF SERVICE</p>
+        <div id="serviceYears" class="metric">—</div>
+        <p id="serviceDetail" class="muted"></p>
+      </article>
+      <article class="card metric-card">
+        <p class="label">PENSION AT TARGET</p>
+        <div id="pensionAtTarget" class="metric">—</div>
+        <p id="targetIncrease" class="muted"></p>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <p class="label">QUICK SCENARIOS</p>
+          <h2>What one more year does</h2>
+        </div>
+      </div>
+      <div class="scenario-row"><span>Additional annual pension</span><strong id="oneYearPension">—</strong></div>
+      <div class="scenario-row"><span>Additional 5-year pension income</span><strong id="fiveYearPension">—</strong></div>
+      <div class="scenario-row"><span>Projected DROP value</span><strong id="dropValue">—</strong></div>
+    </section>
+
+    <p class="privacy-note">Your balances are saved only in this browser using local storage. They are not placed in your public GitHub files.</p>
+  </main>
+
+  <dialog id="settingsDialog">
+    <form id="settingsForm" method="dialog">
+      <div class="dialog-head">
+        <div><p class="eyebrow">EDIT DASHBOARD</p><h2>Settings</h2></div>
+        <button class="icon-btn" value="cancel" aria-label="Close">✕</button>
+      </div>
+
+      <div class="form-grid">
+        <label>Career start date<input id="careerStart" type="date" required></label>
+        <label>Target retirement date<input id="retirementDate" type="date" required></label>
+        <label>Annual pension today ($)<input id="basePension" type="number" min="0" step="100"></label>
+        <label>Daily pension accrual ($)<input id="pensionDaily" type="number" min="0" step="0.01"></label>
+        <label>DROP years<input id="dropYears" type="number" min="0" max="10" step="0.5"></label>
+        <label>DROP return assumption (%)<input id="dropReturn" type="number" min="0" max="20" step="0.1"></label>
+      </div>
+
+      <h3>Assets</h3>
+      <div class="form-grid">
+        <label>457 balance ($)<input id="balance457" type="number" min="0" step="100"></label>
+        <label>Roth IRAs ($)<input id="balanceRoth" type="number" min="0" step="100"></label>
+        <label>Taxable investments ($)<input id="balanceTaxable" type="number" min="0" step="100"></label>
+        <label>Cash ($)<input id="balanceCash" type="number" min="0" step="100"></label>
+        <label>Home value ($)<input id="homeValue" type="number" min="0" step="1000"></label>
+        <label>Other assets ($)<input id="otherAssets" type="number" min="0" step="100"></label>
+      </div>
+
+      <h3>Debts</h3>
+      <div class="form-grid">
+        <label>Mortgage balance ($)<input id="mortgage" type="number" min="0" step="1000"></label>
+        <label>HELOC / other debt ($)<input id="otherDebt" type="number" min="0" step="100"></label>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" id="resetBtn" class="secondary">Reset sample</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
