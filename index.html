@@ -19,15 +19,30 @@
       <button id="settingsBtn" class="icon-btn" aria-label="Open settings">⚙︎</button>
     </header>
 
-    <section class="score-grid">
+    <section class="score-grid three-score">
       <article class="card score-card">
         <div class="ring" id="fireRing"><div><strong id="fireScore">—</strong><span>FIRE ready</span></div></div>
         <div class="score-copy"><p class="label">FIRE READINESS</p><h2 id="fireStatus">Calculating…</h2><p id="fireChange" class="muted">Progress score toward your planned retirement.</p></div>
       </article>
       <article class="card score-card">
-        <div class="ring" id="successRing"><div><strong id="successScore">—</strong><span>success</span></div></div>
-        <div class="score-copy"><p class="label">RETIREMENT SUCCESS</p><h2 id="successStatus">Planning estimate</h2><p class="muted">Monte Carlo estimate—not a guarantee.</p></div>
+        <div class="ring" id="bridgeRing"><div><strong id="bridgeScore">—</strong><span>bridge</span></div></div>
+        <div class="score-copy"><p class="label">BRIDGE SURVIVABILITY</p><h2 id="bridgeStatus">Planning estimate</h2><p id="bridgeScoreDetail" class="muted">Odds of reaching pension commencement without exhausting bridge resources.</p></div>
       </article>
+      <article class="card score-card">
+        <div class="ring" id="lifetimeRing"><div><strong id="lifetimeScore">—</strong><span>lifetime</span></div></div>
+        <div class="score-copy"><p class="label">LIFETIME SURVIVABILITY</p><h2 id="lifetimeStatus">Planning estimate</h2><p id="lifetimeScoreDetail" class="muted">Odds of funding the remaining lifetime plan after pension begins.</p></div>
+      </article>
+    </section>
+
+    <section class="card">
+      <div class="section-head"><div><p class="label">SURVIVABILITY SCENARIO</p><h2>Separation and pension timing</h2></div><span class="badge">Rule of 68</span></div>
+      <div class="summary-strip four">
+        <div><small>Planned separation</small><strong id="separationDateLabel">—</strong></div>
+        <div><small>Pension begins</small><strong id="pensionStartLabel">—</strong></div>
+        <div><small>Unpaid bridge</small><strong id="bridgeYearsLabel">—</strong></div>
+        <div><small>Pension accrued</small><strong id="separationPensionLabel">—</strong></div>
+      </div>
+      <p id="bridgeDetail" class="muted"></p>
     </section>
 
     <section class="hero card">
@@ -113,7 +128,9 @@
       <h3>Pension</h3>
       <div class="form-grid">
         <label>Hire date<input id="careerStart" type="date" required></label>
-        <label>Eligibility date<input id="retirementDate" type="date" required></label>
+        <label>Birthdate<input id="birthDate" type="date" required></label>
+        <label>Calculated Rule-of-68 date<input id="retirementDate" type="date" readonly></label>
+        <label>Planned separation date<input id="plannedSeparationDate" type="date" required></label>
         <label>Highest-year salary ($)<input id="pensionSalary" type="number" min="0" step="1"></label>
         <label>Current salary effective<input id="currentSalaryStart" type="date"></label>
         <label>Prior pension salary ($)<input id="priorSalary" type="number" min="0" step="1"></label>
@@ -130,7 +147,7 @@
         <label>Retirement horizon (years)<input id="retirementHorizon" type="number" min="10" max="60" step="1"></label>
         <label>Annual contributions until retirement ($)<input id="annualContributions" type="number" min="0" step="1000"></label>
       </div>
-      <h3>Mortgage &amp; DROP</h3>
+      <h3>Mortgage, HELOC &amp; DROP</h3>
       <div class="form-grid">
         <label>Original mortgage ($)<input id="mortgageOriginalInput" type="number" min="0" step="1"></label>
         <label>Current mortgage ($)<input id="mortgage" type="number" min="0" step="1"></label>
@@ -139,11 +156,16 @@
         <label>Loan term (years)<input id="mortgageTerm" type="number" min="1" max="50" step="1"></label>
         <label>Monthly principal &amp; interest ($)<input id="mortgagePI" type="number" min="0" step="1"></label>
         <label>Home value ($)<input id="homeValue" type="number" min="0" step="1000"></label>
+        <label>Undrawn HELOC limit ($)<input id="helocLimit" type="number" min="0" step="1000"></label>
+        <label>HELOC rate assumption (%)<input id="helocRate" type="number" min="0" max="25" step="0.1"></label>
         <label>DROP years<input id="dropYears" type="number" min="0" max="10" step="0.5"></label>
         <label>DROP return (%)<input id="dropReturn" type="number" min="0" max="20" step="0.1"></label>
         <label>Other assets ($)<input id="otherAssets" type="number" min="0" step="100"></label>
         <label>Other debt ($)<input id="otherDebt" type="number" min="0" step="100"></label>
       </div>
+      <h3>Backup &amp; transfer</h3>
+      <p class="muted">Export your latest balances, settings, and history before changing devices or clearing browser data.</p>
+      <div class="dialog-actions backup-actions"><button type="button" id="exportBtn" class="secondary">Export backup</button><label class="secondary import-label">Import backup<input id="importFile" type="file" accept="application/json" hidden></label></div>
       <div class="dialog-actions"><button type="button" id="resetBtn" class="secondary">Reset defaults</button><button type="submit" class="primary">Save settings</button></div>
     </form>
   </dialog>
