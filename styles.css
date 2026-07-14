@@ -2,3 +2,5 @@
 .import-label{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.backup-actions{justify-content:flex-start;margin-bottom:10px}
 @media (min-width: 980px){.score-grid.three-score{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width: 979px){.score-grid.three-score{grid-template-columns:1fr}}
+
+.bridge-progress-block{margin:18px 0}.bridge-center .summary-strip{margin-top:14px}

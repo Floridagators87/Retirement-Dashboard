@@ -45,6 +45,25 @@
       <p id="bridgeDetail" class="muted"></p>
     </section>
 
+
+    <section class="card bridge-center">
+      <div class="section-head"><div><p class="label">BRIDGE CENTER</p><h2>Early-retirement funding progress</h2></div><span class="badge" id="bridgeGoalRateLabel">$120,000/year</span></div>
+      <div class="summary-strip four">
+        <div><small>Bridge goal</small><strong id="bridgeGoal">—</strong></div>
+        <div><small>Saved bridge money</small><strong id="bridgeSaved">—</strong></div>
+        <div><small>Total capacity + HELOC</small><strong id="bridgeCapacity">—</strong></div>
+        <div><small>Still needed</small><strong id="bridgeRemaining">—</strong></div>
+      </div>
+      <div class="bridge-progress-block"><div class="progress-row"><span>Cash bridge progress</span><strong id="cashBridgePct">—</strong></div><div class="progress-track"><div id="cashBridgeBar" class="progress-bar"></div></div></div>
+      <div class="bridge-progress-block"><div class="progress-row"><span>Total bridge capacity</span><strong id="totalBridgePct">—</strong></div><div class="progress-track"><div id="totalBridgeBar" class="progress-bar alt"></div></div></div>
+      <div class="summary-strip">
+        <div><small>Bridge duration</small><strong id="bridgeDurationGoal">—</strong></div>
+        <div><small>Projected fully funded</small><strong id="bridgeFundedDate">—</strong></div>
+        <div><small>Goal basis</small><strong id="bridgeGoalBasis">—</strong></div>
+      </div>
+      <p id="bridgeCoach" class="muted"></p>
+    </section>
+
     <section class="hero card">
       <div><p class="label">RETIREMENT COUNTDOWN</p><div id="countdown" class="countdown">—</div><p id="targetDateLabel" class="muted"></p></div>
       <div class="progress-wrap"><div class="progress-track"><div id="progressBar" class="progress-bar"></div></div><div class="progress-row"><span>Career progress</span><strong id="careerProgress">—</strong></div></div>
@@ -139,6 +158,7 @@
       <h3>FIRE &amp; probability</h3>
       <div class="form-grid">
         <label>Annual retirement budget ($)<input id="annualBudget" type="number" min="0" step="1000"></label>
+        <label>Bridge goal per unpaid year ($)<input id="bridgeAnnualGoal" type="number" min="0" step="5000"></label>
         <label>Investment goal ($)<input id="investmentGoal" type="number" min="0" step="10000"></label>
         <label>Inflation assumption (%)<input id="inflationRate" type="number" min="0" max="15" step="0.1"></label>
         <label>Average investment return (%)<input id="expectedReturn" type="number" min="-5" max="20" step="0.1"></label>

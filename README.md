@@ -1,4 +1,4 @@
-# Retirement HQ — Version 4.1
+# Retirement HQ — Version 5.1
 
 Mobile-first retirement dashboard for GitHub Pages.
 
@@ -15,3 +15,6 @@ Mobile-first retirement dashboard for GitHub Pages.
 ## Data persistence
 
 Balances and settings stay in browser local storage and migrate from prior dashboard versions when the GitHub files are replaced. Use Export Backup before clearing browser data or changing devices.
+
+
+Version 5 adds a Bridge Center using an editable annual bridge goal (default $120,000 per unpaid year), cash-only and HELOC-inclusive progress, remaining need, and estimated funding date.
